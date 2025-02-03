@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-200" style="background: linear-gradient(to bottom, #048096 23%, #330c43 95%)">
+
+    <nav class="flex h-14 px-10 bg-sla200">
+        <div class="flex items-center gap-1 w-[75%] text-white font-bold">
+            <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
+                <span class="self-center text-2xl font-semibold whitespace-nowrap text-white">Flowbite</span>
+            </a>
+        </div>
+        <div id="navbar" class="w-[20%] flex justify-between items-center px-10 text-white">
+            <div><a href="/" class="hover:text-gray-300">Home</a></div>
+            <!-- <div id="presentButton" class="cursor-pointer hover:text-gray-300">Present</div> Present Button -->
+            <!-- <div id="createButton" class="cursor-pointer hover:text-gray-300">Create</div> Create Button --> 
+            <div id="templates" class="cursor-pointer hover:text-gray-300"><a href="/template-page">Templates</a></div>
+        </div>
+    </nav>
+
+    <!-- Loading spinner (hidden by default) -->
+    <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+    </div>
+
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-8 text-center text-white">TeMplates</h1>
+        <div class="grid grid-cols-5 gap-4">
+            <!-- Images will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const images = [
+            'https://i.pinimg.com/600x315/77/7f/0b/777f0b043cf4d218c4c99fa4294f4044.jpg',
+            'https://image.slidesdocs.com/responsive-images/slides/1-blue-business-style-mid-year-work-development-plan-powerpoint-background_7338fbcf2d__960_540.jpg',
+            'https://www.psd-dude.com/tutorials/resources-images/presentation-background/simple-presentation-background.jpg',
+            'https://static.vecteezy.com/system/resources/previews/028/283/937/original/plain-blue-wavy-background-for-wallpaper-banner-poster-flyer-powerpoint-and-presentation-free-vector.jpg',
+            'https://t3.ftcdn.net/jpg/03/65/64/88/360_F_365648888_nTq9Cajc4e984ifdRAp5Q77KGkGFccgF.jpg',
+            'https://plus.unsplash.com/premium_photo-1701892428860-ca4913e92274?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cG93ZXJwb2ludCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D',
+            'https://img.freepik.com/premium-photo/lime-green-background_1314622-6426.jpg',
+            'https://png.pngtree.com/thumb_back/fh260/background/20240530/pngtree-blank-and-cool-green-background-for-ppt-design-templates-vector-image_15838550.jpg',
+            'https://png.pngtree.com/thumb_back/fh260/background/20230120/pngtree-blue-background-ppt-plain-vector-image_1539095.jpg',
+            'https://i.pinimg.com/736x/c5/de/0b/c5de0baee57e9bda74bfbeb0c533ba75.jpg',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXv2GkRWfhA4h-8veXI6lWcgV29HNYTv2UeQ&s',
+            'https://e0.pxfuel.com/wallpapers/532/495/desktop-wallpaper-pure-black-997199-background-for-powerpoint-templates-ppt-background-dark-presentation.jpg',
+        ];
+
+        const gallery = document.querySelector('.grid');
+        const loadingSpinner = document.getElementById('loading');
+        const navbar = document.getElementById('navbar');
+
+        // Show loading spinner
+        function showLoading() {
+            loadingSpinner.classList.remove('hidden');
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            loadingSpinner.classList.add('hidden');
+        }
+
+        async function checkSession() {
+            try {
+                showLoading(); // Show the loading spinner while checking the session
+
+                const response = await fetch('/check-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (!data.loggedIn) {
+                    // If not logged in, redirect to login page
+                    window.location.href = '/login-page';
+                } else {
+                    console.log("Logged in as: ", data.email);
+
+                    // Dynamically add "Slides" link to navbar
+                    const slidesLink = document.createElement('div');
+                    slidesLink.innerHTML = `<a href="/slides-page" class="text-white hover:text-gray-300">Slides</a>`;
+                    navbar.appendChild(slidesLink);
+
+                    hideLoading(); // Hide the loading spinner after session check
+                    return data.email;
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+            } finally {
+                hideLoading(); // Ensure the spinner hides if there's an error
+            }
+        }
+
+        async function handleClick(src) {
+            let templink = src;
+            let email = await checkSession();
+
+            if (email && email.length > 0) {
+                const timestamp = Date.now();
+                const uniqueKey = 'slides' + email + timestamp;
+                const newKey = uniqueKey + 'image';
+                const title = uniqueKey;
+
+                const dataToStore = {
+                    link: templink,
+                    title: title,
+                    createdAt: new Date().toISOString(),
+                };
+
+                localStorage.setItem(newKey, JSON.stringify(dataToStore));
+                let slide = [];
+                slide.push({
+                    title: 'Title here (WELCOME 🙏)',
+                    data: 'Content will appear here, happy journey!! 👍👍❤️',
+                    image: 'https://i.pinimg.com/736x/cc/0b/21/cc0b210ff742032f147f57aebf4b7080.jpg',
+                    link: 'no'
+                });
+                localStorage.setItem(uniqueKey, slide);
+                window.location.href = `create-present?slide=${uniqueKey}`;
+            } else {
+                console.log("Session error, user not logged in.");
+            }
+        }
+
+        // Insert images into the gallery
+        images.forEach((src) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = src;
+            imgElement.alt = 'Image';
+            imgElement.className = 'w-full h-48 rounded-lg shadow-lg cursor-pointer';
+
+            const div = document.createElement('div');
+            div.className = 'flex justify-center items-center';
+
+            imgElement.addEventListener('click', () => handleClick(src));
+
+            div.appendChild(imgElement);
+            gallery.appendChild(div);
+        });
+
+        // Check session on page load
+        checkSession();
+    </script>
+</body>
+
+</html>

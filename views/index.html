@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slideshow App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <script src="https://cdn.jsdelivr.net/npm/handtrackjs/dist/handtrack.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+
+  <style>
+    .background-slide {
+      background-image: url('https://images.rawpixel.com/ime_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm00ODYtYmctMDE5ZC14LmpwZw.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .highlight {
+      background-color: black;
+    }
+
+    #video {
+      display: none;
+    }
+
+    button,
+    input[type="color"] {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        } */
+  </style>
+</head>
+
+<body class="bg-gray-300 h-screen flex flex-col justify-between relative">
+
+  <div class="absolute top-0 mt-2 right-16">
+    <button id="voic-input" onclick="togglemice()" class="w3-button rounded-xl" id="fullscreenBtn">
+      <i id="mice-icon" class="fa-solid fa-microphone"></i>
+      <!-- <i class="fa-duotone fa-solid fa-microphone-slash"></i> -->
+    </button>
+  </div>
+
+  <div class=" absolute top-0 mt-2 right-2 rounded-lg">
+    <button onclick="togglevideo()" class="w3-button rounded-xl">
+      <i id="video-icon" class="fa-solid fa-video"></i>
+      <!-- <i class="fa-duotone fa-solid fa-video-slash"></i> -->
+    </button>
+  </div>
+
+  <div class="w3-sidebar w3-bar-block w3-border-right hidden bg-gray-200 relative"
+    style="height:100vh; overflow-y:auto; position:fixed; top:0; left:0; width:250px;" id="mySidebar">
+    <button onclick="w3_close()" class="w3-bar-item w3-large">
+      <p class="text-[40px] ml-10"> Close &times;</p>
+    </button>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" id="fullscreenBtn">Present</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <div class="flex h-10 ml-4">
+        <input id="template-input" class="w-[70%]  bg-gray-200 rounded-xl border-none pl-[2px]" type="text"
+          placeholder="Template" required>
+        <button onclick="changetemplate()" class="w-[50%] hover:bg-gray-200 rounded-lg  font-bold">
+          <p>→</p>
+        </button>
+      </div>
+    </div>
+
+
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('bold')">Bold</button>
+    </div>
+
+    <div class="w3-dropdown-hover flex w-fit mt-4">
+      <label class="ml-4">Font </label>
+      <select class="ml-4" onchange="document.execCommand('fontSize', false, this.value)">
+        <option value="1">8px</option>
+        <option value="2">10px</option>
+        <option value="3">12px</option>
+        <option value="4">14px</option>
+        <option value="5">18px</option>
+        <option value="6">24px</option>
+        <option value="7">36px</option>
+      </select>
+    </div>
+
+    <div class="w3-dropdown-hover flex w-fit">
+      <label class="mt-6 ml-4">Color </label>
+      <input class="ml-4" type="color" onchange="document.execCommand('foreColor', false, this.value)">
+    </div>
+
+    <div class="w3-dropdown-hover flex w-fit">
+      <label class="mt-6 ml-4">Background </label>
+      <input class="ml-4" type="color" onchange="document.execCommand('hiliteColor', false, this.value)">
+    </div>
+
+    <!-- Formatting Options -->
+    <div class="w3-dropdown-hover mt-2">
+      <button class="w3-button" onclick="document.execCommand('bold')">Bold</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('italic')">Italic</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('underline')">Underline</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('strikeThrough')">StrikeThrough</button>
+    </div>
+
+    <!-- Text Alignment Options -->
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('justifyLeft')">Align Left</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('justifyCenter')">Center</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('justifyRight')">Align Right</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('justifyFull')">Justify</button>
+    </div>
+
+    <!-- List Options -->
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('insertOrderedList')">Numbered List</button>
+    </div>
+    <div class="w3-dropdown-hover">
+      <button class="w3-button" onclick="document.execCommand('insertUnorderedList')">Bulleted List</button>
+    </div>
+
+
+
+    <div class="w3-dropdown-hover">
+      <button class="w3-button">Dots</button>
+      <div class="w3-dropdown-content w3-bar-block">
+        <!-- Dot Dropdown -->
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-2xl" onclick="copyToClipboardWithSize('•', this)">•</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-2xl" onclick="copyToClipboardWithSize('○', this)">○</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('◴', this)">◴</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('◐', this)">◐</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('◑', this)">◑</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+      </div>
+    </div>
+
+    <div class="w3-dropdown-hover">
+      <button class="w3-button">Star </button>
+      <div class="w3-dropdown-content w3-bar-block">
+        <!-- Star Dropdown -->
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('★', this)">★</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1 ">
+          <span class="text-sm" onclick="copyToClipboardWithSize('☆', this)">☆</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-3 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('⭐', this)">⭐</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+      </div>
+    </div>
+
+    <div class="w3-dropdown-hover">
+      <button class="w3-button">Arrow</button>
+      <div class="w3-dropdown-content w3-bar-block">
+        <!-- Star Dropdown -->
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('→', this)">→</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1 ">
+          <span class="text-sm" onclick="copyToClipboardWithSize('←', this)">←</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-5 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('↑', this)">↑</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('↓', this)">↓</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+      </div>
+    </div>
+
+    <div class="w3-dropdown-hover">
+      <button class="w3-button">3D Arrow</button>
+      <div class="w3-dropdown-content w3-bar-block">
+        <!-- Star Dropdown -->
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('↗️', this)">↗️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1 ">
+          <span class="text-sm" onclick="copyToClipboardWithSize('↘️', this)">↘️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('↖️', this)">↖️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('↙️', this)">↙️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+      </div>
+    </div>
+
+    <div class="w3-dropdown-hover">
+      <button class="w3-button">Buttons</button>
+      <div class="w3-dropdown-content w3-bar-block">
+        <!-- Star Dropdown -->
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('▶️', this)">▶️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1 ">
+          <span class="text-sm" onclick="copyToClipboardWithSize('⏸️', this)">⏸️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('⏪', this)">⏪</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('⏩', this)">⏩</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+
+      </div>
+    </div>
+
+    <div class="w3-dropdown-hover">
+      <button class="w3-button">More</button>
+      <div class="w3-dropdown-content w3-bar-block">
+        <!-- Star Dropdown -->
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('✔️', this)">✔️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1 ">
+          <span class="text-sm" onclick="copyToClipboardWithSize('✖️', this)">✖️</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-5 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('🎯', this)">🎯</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('📌', this)">📌</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+        <div class="flex items-center space-x-2 pl-4 rounded-md cursor-pointer hover:bg-gray-200 gap-16 mt-1">
+          <span class="text-sm" onclick="copyToClipboardWithSize('➕', this)">➕</span>
+          <input type="number" placeholder="(px)" class="w-16 border border-gray-300 rounded-md text-center">
+        </div>
+
+      </div>
+    </div>
+
+
+
+
+  </div>
+  <!-- <div class="nav w-full h-fit"> -->
+  <button class="absolute m-2 mt-3 ml-4 text-gray-400 text-[30px] font-bold " onclick="w3_open()">☰</button>
+  <!-- </div> -->
+
+  <!-- Slide Show Area -->
+  <div class="flex-grow flex justify-center items-center min-h-screen">
+    <div id="slide-container"
+      class="relative w-3/4 h-[85%] background-slide flex flex-col p-2 bg-black bg-opacity-50 rounded-lg">
+      <!-- Title and Content/Image over Background -->
+      <div class="w-full h-fit flex justify-center flex-col mt-3">
+        <div class="flex justify-center w-full">
+          <h2 id="slide-title" class="text-5xl font-bold mb-4 text-white">Title will appear here</h2>
+        </div>
+      </div>
+
+      <!-- Slide Content and Image Section -->
+      <div class="flex w-full h-full px-16 gap-5">
+        <div id="add-image" class="w-[60%] h-[50%] rounded-xl mt-40 hidden"></div>
+
+        <div class="w-full mt-10 text-white flex justify-start items-stretch">
+          <div class="rounded-xl w-full h-full">
+            <p id="slide-content-container" contenteditable="true" class="text-[21px] bg-none">Content will appear here
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Previous Slide Button -->
+      <button id="prev-slide"
+        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-4 rounded-full hover:bg-gray-600">
+        &larr;
+      </button>
+
+      <!-- Next Slide Button -->
+      <button id="next-slide"
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-4 rounded-full hover:bg-gray-600">
+        &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- Input Form at Bottom -->
+  <div class="p-4 bg-gray-00 shadow-lg p-30 mt-16 ml-10">
+    <div id="slide-form" class="flex flex-col items-center space-y-3">
+      <div class="w-full flex gap-5">
+        <form class="w-[50%]">
+          <input type="text" id="title-input" placeholder="Enter title"
+            class="w-[20%] rounded-lg px-2 py-2 border border-slate-300 text-bold" required>
+          <input type="text" id="data-input" placeholder="Enter content" required
+            class="w-[20%] rounded-lg px-2 py-2 border border-gray-300 text-bold">
+          <input type="text" id="image-input" placeholder="Enter image URL"
+            class="w-[20%] rounded-lg px-2 py-2 border border-gray-300 text-bold">
+          <input type="text" id="link-input" placeholder="Enter link URL"
+            class="w-[20%] rounded-lg px-2 py-2 border border-gray-300 text-bold">
+          <button type="submit"
+            class="w-fit rounded-xl font-bold text-white bg-green-500 px-5 py-2 hover:bg-green-600 text-sm">Add</button>
+        </form>
+        <div class="w-[50%] flex gap-20">
+          <div>
+            <button id="summary-btn" type="button"
+              class="w-fit rounded-xl font-bold text-white bg-blue-500 px-4 py-2 hover:bg-blue-600 text-sm">
+              Summary
+            </button>
+          </div>
+
+          <form id="promt-form" class="w-full flex gap-5">
+            <input id="promt-input" type="text" class="w-[40%] rounded-lg px-2 py-1 border border-gray-300 text-bold"
+              placeholder="Command Prompt">
+            <div class="flex gap-32">
+              <button id="promt-button"
+                class="w-fit h-fit rounded-xl bg-blue-700 font-bold text-white px-5 py-2">Run</button>
+
+              <button id="delete-slide" type="button"
+                class=" bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-2 rounded-md hover:bg-red-500">
+                Delete
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function checkSession() {
+      try {
+        const response = await fetch('/check-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+
+        if (!data.loggedIn) {
+          // If not logged in, you can handle it (e.g., redirect to login)
+          window.location.href = '/login-page';
+          return "";
+        }
+        else {
+          console.log("emailllllllllllllllllll : ", data.email)
+          return data.email;
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      }
+    }
+
+    const changetemplate = async () => {
+      const queryString1 = window.location.search;
+      const urlParams1 = new URLSearchParams(queryString1);
+      let user = await urlParams1.get('slide');
+
+      let templink = await document.getElementById('template-input').value;
+      if (templink && templink.length < 15) return false;
+      else {
+        console.log(templink, user, "vvvmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
+        let data1 = await localStorage.getItem(user + 'image');
+        let title = data1.title;
+
+        const dataToStore = {
+          link: templink,
+          title: title,
+          createdAt: new Date().toISOString(), // Optional: Store the timestamp
+        };
+        // Store the template link in local storage as a JSON string
+        localStorage.setItem(user + 'image', JSON.stringify(dataToStore));
+
+        let data = await localStorage.getItem(user + 'image');
+        console.log(data);
+
+        location.reload();
+      }
+    }
+
+    const queryString1 = window.location.search;
+    // Create a URLSearchParams object to work with the query string
+    const urlParams1 = new URLSearchParams(queryString1);
+
+    // Access specific parameters by name
+    let user = urlParams1.get('slide');
+    let email = checkSession();
+
+    let newkey = user + 'image';
+    console.log(newkey, user);
+    let data = localStorage.getItem(user);
+    console.log("data :", data);
+
+    let templink = JSON.parse(localStorage.getItem(newkey));
+
+    const check = async () => {
+      const validExtensions = /\.(jpg|jpeg|png|gif|webp|bmp|svg|tiff|ico)$/i;
+      let flag = await validExtensions.test(templink);
+      console.log(templink.link, newkey);
+
+      // if(!flag) templink.link='https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm00ODYtYmctMDE5ZC14LmpwZw.jpg';
+      console.log(flag, templink);
+
+      // Set the background image using a class selector
+      document.getElementById('slide-container').style.backgroundImage = `url(${templink.link})`;
+    }
+
+
+    check();
+
+  </script>
+
+  <script>
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const sld = document.getElementById('slide-content-container');
+
+    // Add event listener for the fullscreen button
+    fullscreenBtn.addEventListener('click', () => {
+      // Check if the document is currently in fullscreen mode
+      if (!document.fullscreenElement) {
+        // Enter fullscreen mode
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+        } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+          document.documentElement.mozRequestFullScreen();
+        } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari, Opera
+          document.documentElement.webkitRequestFullscreen();
+        } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+          document.documentElement.msRequestFullscreen();
+        }
+        sld.contentEditable = 'false';
+        isfullscreen = true;
+
+        // Adjust slide-container width for fullscreen
+        document.getElementById('slide-container').classList.add('w-[83%]');
+        document.getElementById('slide-container').classList.remove('w-3/4');
+      } else {
+        // Exit fullscreen mode
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+          document.msExitFullscreen();
+        }
+
+        sld.contentEditable = 'true';
+        isfullscreen = false;
+
+        // Revert slide-container width when exiting fullscreen
+        document.getElementById('slide-container').classList.remove('w-[90%]');
+        document.getElementById('slide-container').classList.add('w-3/4');
+      }
+    });
+
+
+
+    function w3_open() {
+      document.getElementById("mySidebar").style.display = "block";
+    }
+
+    function w3_close() {
+      document.getElementById("mySidebar").style.display = "none";
+    }
+
+
+
+    function copyToClipboardWithSize(content, element) {
+      // Get the input field next to the clicked element
+      const input = element.parentNode.querySelector('input'); // Get the input field in the same parent div
+
+      // Check if input exists
+      // if (!input) {
+      //   alert('Input field not found!');
+      //   return;
+      // }
+
+      const size = input.value; // Get the value of the input field
+
+      // Check if size is provided and is a valid number
+      // if (size && !isNaN(size)) {
+      // Use the Clipboard API to write the text directly
+      navigator.clipboard.writeText(content).then(() => {
+        // alert('Copied: ' + content + ' of size ' + size + 'px');
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+      // } else {
+      //   alert('Please enter a valid size.');
+      // }
+    }
+
+  </script>
+
+  <script>
+
+    const queryString = window.location.search;
+    // Create a URLSearchParams object to work with the query string
+    const urlParams = new URLSearchParams(queryString);
+
+    // Access specific parameters by name
+    const name = urlParams.get('slide');
+    console.log("nammmmmmm2 :", name);
+
+    // Load slides from local storage on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      let timestamp = Date.now(); // Get the current timestamp in milliseconds 
+      const savedSlides = JSON.parse(localStorage.getItem(name));
+      let data = localStorage.getItem(user + 'image');
+      document.getElementById('slide-container').style.backgroundImage = `url(${data})`;
+      console.log(data);
+
+      if (savedSlides) {
+        slides = savedSlides;
+        currentSlideIndex = 0; // Reset to the first slide
+        slides.image = data;
+        displaySlide(currentSlideIndex);
+      }
+      else window.location.href = "/";
+    });
+
+    let slides = [];
+    let currentSlideIndex = -1;
+
+    // Handle adding new slide
+    document.getElementById('slide-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('title-input').value;
+      const data = document.getElementById('data-input').value;
+      const image = document.getElementById('image-input').value;
+      const link = document.getElementById('link-input').value;
+
+      // Add new slide to the slides array
+      // slides.push({ title, data, image, link });
+      // console.log("Index:: ", currentSlideIndex);
+      slides.splice(currentSlideIndex + 1, 0, { title, data, image, link });
+      const queryString = window.location.search;
+      // Create a URLSearchParams object to work with the query string
+      const urlParams = new URLSearchParams(queryString);
+
+      // Access specific parameters by name
+      const name = await urlParams.get('slide');
+
+      // Save slides to local storage
+      localStorage.setItem(name, JSON.stringify(slides));
+
+      // Clear form fields
+      document.getElementById('title-input').value = '';
+      document.getElementById('data-input').value = '';
+      document.getElementById('image-input').value = '';
+      document.getElementById('link-input').value = '';
+
+      // Automatically display the new slide
+      displaySlide(currentSlideIndex + 1);
+    });
+
+    // Display the current slide
+    // Display the current slide
+    function displaySlide(index) {
+      if (index < 0 || index >= slides.length) return; // Validate index
+      const slide = slides[index];
+
+      // Update title
+      document.getElementById('slide-title').textContent = slide.title;
+
+      const slideContentContainer = document.getElementById('slide-content-container');
+      const imageelement = document.getElementById('add-image');
+      slideContentContainer.innerHTML = ''; // Clear the previous content
+      imageelement.innerHTML = ''; // Clear the previous content
+
+      // Format data to preserve line breaks and display HTML correctly
+      slideContentContainer.innerHTML = slide.data || ''; // Use innerHTML to keep formatting
+
+      // Show the image if present
+      if (slide.image) {
+        const imageDiv = document.createElement('div');
+        imageDiv.classList.add('w-[100%]', 'h-[100%]', 'bg-cover', 'bg-center', 'rounded-lg');
+        imageDiv.style.backgroundImage = `url(${slide.image})`;
+        imageelement.appendChild(imageDiv);
+        imageelement.classList.remove('hidden');
+      } else {
+        imageelement.classList.add('hidden');
+      }
+
+      currentSlideIndex = index; // Update current slide index
+    }
+
+    document.addEventListener('keydown', (event) => {
+      // Get the slide content container element
+      let slideContentContainer = document.getElementById('slide-content-container');
+
+      // Check if the active element is not within an editable paragraph
+      let activeElement = document.activeElement;
+
+      // Navigate only if the slide content container is contenteditable='false' OR if the focused element is not editable
+      if (slideContentContainer && slideContentContainer.getAttribute('contenteditable') === 'false' ||
+        (activeElement && activeElement.getAttribute('contenteditable') !== 'true')) {
+
+        // Check for left arrow (key code 37) and right arrow (key code 39)
+        if (event.key === 'ArrowLeft') {
+          // Navigate to the previous slide (backward)
+          if (currentSlideIndex > 0) {
+            displaySlide(currentSlideIndex - 1);
+          }
+        } else if (event.key === 'ArrowRight') {
+          // Navigate to the next slide (forward)
+          if (currentSlideIndex < slides.length - 1) {
+            displaySlide(currentSlideIndex + 1);
+          }
+        }
+      }
+    });
+
+
+
+    // Web Speech API setup
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true; // Enable interim results
+
+    // Highlight matched text----1
+    // function highlightText(matchedTextArray) {
+    //   const contentElement = document.getElementById('slide-content-container');
+    //   const originalText = slides[currentSlideIndex].data;
+
+    //   // Clear previous highlights by resetting the content to the original text
+    //   contentElement.innerHTML = originalText;
+
+    //   let foundMatch = false; // To track if any match was found
+
+    //   // Iterate through the array to find sequences of three consecutive words
+    //   for (let i = 0; i < matchedTextArray.length - 2; i++) {
+    //     // Form a three-word phrase by taking three consecutive words
+    //     const matchedText = `${matchedTextArray[i]} ${matchedTextArray[i + 1]} ${matchedTextArray[i + 2]}`;
+
+    //     // Create a regex to match the three-word phrase
+    //     const regex = new RegExp(`(${matchedText})`, 'gi');
+
+    //     // Highlight the phrase if found
+    //     contentElement.innerHTML = contentElement.innerHTML.replace(regex, (match) => {
+    //       foundMatch = true; // Set flag to true when a match is found
+    //       return `<span class="bg-pink-300 bg-opacity-100 transition duration-300 ease-in-out">${match}</span>`;
+    //     });
+    //   }
+
+    //   // Return true if any match is found
+    //   return foundMatch;
+    // }
+
+
+    // ----------------------------------------2
+    function highlightText(matchedTextArray) {
+      const contentElement = document.getElementById('slide-content-container');
+      const originalText = slides[currentSlideIndex].data;
+
+      // Clear previous highlights by resetting the content to the original text
+      contentElement.innerHTML = originalText;
+
+      let foundMatch = false; // To track if any match was found
+
+      // Iterate through the array to find sequences of two consecutive words
+      for (let i = 0; i < matchedTextArray.length - 1; i++) {
+        // Form a two-word phrase by taking two consecutive words
+        const matchedText = `${matchedTextArray[i]} ${matchedTextArray[i + 1]}`;
+
+        // Create a regex to match the two-word phrase
+        const regex = new RegExp(`(${matchedText})`, 'gi');
+
+        // Highlight the phrase if found
+        contentElement.innerHTML = contentElement.innerHTML.replace(regex, (match) => {
+          foundMatch = true; // Set flag to true when a match is found
+          return `<span class="bg-yellow-100 bg-opacity-50 transition duration-300 ease-in-out">${match}</span>`;
+        });
+      }
+
+      // Return true if any match is found
+      return foundMatch;
+    }
+
+    // --------------------------------------3
+//     function highlightText(matchedTextArray) {
+//   const contentElement = document.getElementById('slide-content-container');
+//   const originalText = slides[currentSlideIndex].data;
+
+//   // Clear previous highlights by resetting the content to the original text
+//   contentElement.innerHTML = originalText;
+
+//   let foundMatch = false; // To track if any match was found
+
+//   // Iterate through the array to match and highlight exact phrases
+//   matchedTextArray.forEach((matchedText) => {
+//     // Create a regex to match the exact phrase, preserving punctuation and spacing
+//     const regex = new RegExp(`(${matchedText})`, 'gi'); // No \b to allow matching within sentences
+
+//     // Replace matches with highlighted text without altering layout
+//     contentElement.innerHTML = contentElement.innerHTML.replace(regex, (match) => {
+//       foundMatch = true; // Set flag to true when a match is found
+//       return `<span class="bg-pink-300 bg-opacity-100 transition duration-300 ease-in-out">${match}</span>`;
+//     });
+//   });
+
+//   // Return true if any match is found
+//   return foundMatch;
+// }
+
+
+
+    let isfullscreen = false;
+    // if(isfullscreen) clearTimeout(clearHighlightInterval);
+
+    // let clearHighlightInterval = setInterval(() => {
+    //   const contentElement = document.getElementById('slide-content-container');
+
+    //   // Clear highlights only if present mode is active and contenteditable is false
+    //   if (isfullscreen) {
+    //     contentElement.innerHTML = slides[currentSlideIndex].data; // Clear highlights
+    //   }
+    // }, 2000); // Check every 2 seconds
+
+    let prevtext = '234xcfgh';
+
+    // Start listening for voice input
+    recognition.onresult = (event) => {
+      let spokenText = Array.from(event.results)
+        .map(result => result[0].transcript)
+        .join(' ');
+
+      console.log('You said: ', spokenText);
+
+      // Split spoken text into individual words
+      const spokenWords = spokenText.split(/\s+/);
+
+      // Try to highlight the spoken text by three-word combinations
+      const isTextHighlighted = highlightText(spokenWords);
+
+      // Reset the timer each time new text is highlighted
+      // if (isTextHighlighted && isfullscreen) {
+      //   clearInterval(clearHighlightInterval); // Clear the current interval
+      //   clearHighlightInterval = setInterval(() => {
+      //     const contentElement = document.getElementById('slide-content-container');
+      //     contentElement.innerHTML = slides[currentSlideIndex].data; // Clear highlights
+      //   }, 1000); // Restart the interval to check every second
+      // }
+
+      // If spoken text is not found in the current slide's content, check for navigation commands
+      if (!isTextHighlighted && !(spokenText.toLowerCase().includes(prevtext))) {
+        if (spokenText.toLowerCase().includes('next part')) {
+          prevtext = 'next part';
+          setTimeout(() => {
+            prevtext = '234xcfgh';
+          }, 2000);
+          displaySlide(currentSlideIndex + 1); // Go to the next slide
+        } else if (spokenText.toLowerCase().includes('back part')) {
+          prevtext = 'back part';
+          setTimeout(() => {
+            prevtext = '234xcfgh';
+          }, 2000);
+          displaySlide(currentSlideIndex - 1); // Go to the previous slide
+        } else if (spokenText.toLowerCase().includes('moving front')) {
+          prevtext = 'moving front';
+          setTimeout(() => {
+            prevtext = '234xcfgh';
+          }, 2000);
+          displaySlide(0); // Go to the first slide
+        } else if (spokenText.toLowerCase().includes('moving end')) {
+          prevtext = 'moving end';
+          setTimeout(() => {
+            prevtext = '234xcfgh';
+          }, 2000);
+          displaySlide(slides.length - 1); // Go to the last slide
+        }
+      }
+
+      // if(isTextHighlighted) highlightText("databasemanagement");
+    };
+
+
+    // Start the speech recognition when necessary (for example, on a button click)
+    // recognition.start();
+
+    // Restart recognition when it ends, so it keeps listening
+    // recognition.onend = () => recognition.start();
+
+    // // Start recognition
+    // recognition.start();
+
+
+
+    const togglemice = async () => {
+      let mice = document.getElementById('mice-icon');
+
+      if (mice.classList.contains('fa-microphone')) {
+        // Switching to 'microphone-slash' icon
+        mice.classList.remove('fa-microphone');
+        mice.classList.add('fa-duotone', 'fa-microphone-slash');
+
+        // Start speech recognition
+        recognition.onend = () => {
+          // Only restart recognition if the icon is still 'microphone-slash'
+          if (mice.classList.contains('fa-microphone-slash')) {
+            recognition.start();
+          }
+        };
+
+        recognition.start();
+      } else {
+        // Switching to 'microphone' icon
+        mice.classList.remove('fa-microphone-slash');
+        mice.classList.add('fa-microphone');
+
+        // Stop speech recognition
+        recognition.onend = null;  // Disable the onend handler when stopping
+        recognition.stop();
+      }
+    };
+
+
+    // Update local storage when the editable content is changed
+    const slideContentContainer = document.getElementById('slide-content-container');
+    slideContentContainer.addEventListener('input', async () => {
+      const queryString = window.location.search;
+      // Create a URLSearchParams object to work with the query string
+      const urlParams = new URLSearchParams(queryString);
+
+      // Access specific parameters by name
+      const name = await urlParams.get('slide');
+      slides[currentSlideIndex].data = slideContentContainer.innerHTML; // Update slide data
+      localStorage.setItem(name, JSON.stringify(slides)); // Update local storage
+    });
+
+    let videoStream = null; // Store video stream globally
+
+    const onvideo = async () => {
+      console.log('Starting video...');
+      const video = document.createElement('video');
+      const modelParams = {
+        flipHorizontal: true,   // Flip the video horizontally
+        maxNumBoxes: 2,         // Only detect one hand at a time
+        iouThreshold: 0.5,      // IoU threshold for object overlap
+        scoreThreshold: 0.6,    // Confidence score threshold for predictions
+      };
+
+      handTrack.load(modelParams).then(model => {
+        handTrack.startVideo(video).then(status => {
+          if (status) {
+            navigator.getUserMedia({ video: {} }, stream => {
+              videoStream = stream;  // Store the single video stream
+              video.srcObject = stream;
+              setInterval(() => {
+                model.detect(video).then(predictions => {
+                  // Check if gesture is detected (simple swipe left/right logic)
+                  if (predictions.length > 0) {
+                    const bbox = predictions[1].bbox;
+                    const centerX = bbox[0] + bbox[2] / 2;
+                    if (centerX < video.width / 3) {
+                      // Gesture detected on the left side (go to the previous slide)
+                      if (currentSlideIndex > 0)
+                        displaySlide(currentSlideIndex - 1);
+                    } else if (centerX > (2 * video.width) / 3) {
+                      // Gesture detected on the right side (go to the next slide)
+                      if (currentSlideIndex < slides.length - 1)
+                        displaySlide(currentSlideIndex + 1);
+                    }
+                  }
+                });
+              }, 700); // Adjust interval for gesture detection responsiveness
+            }, err => console.error('Error starting video:', err));
+          }
+        });
+      });
+    };
+
+    // Function to stop the single video stream
+    const stopVideo = () => {
+      window.location.reload();
+    };
+
+    const togglevideo = async () => {
+      let mice = document.getElementById('video-icon');
+      if (mice.classList.contains('fa-video')) {
+        // Switch to 'fa-video-slash' and start the video
+        mice.classList.remove('fa-video');
+        mice.classList.add('fa-video-slash');
+        onvideo();
+      } else {
+        // Switch back to 'fa-video' and stop the video
+        mice.classList.remove('fa-video-slash');
+        mice.classList.add('fa-video');
+        stopVideo();
+      }
+    };
+
+
+
+
+
+    // Next slide button
+    document.getElementById('next-slide').addEventListener('click', () => {
+      if (currentSlideIndex < slides.length - 1) {
+        displaySlide(currentSlideIndex + 1);
+      }
+    });
+
+    // Previous slide button
+    document.getElementById('prev-slide').addEventListener('click', () => {
+      if (currentSlideIndex > 0) {
+        displaySlide(currentSlideIndex - 1);
+      }
+    });
+
+    // Delete slide button
+    document.getElementById('delete-slide').addEventListener('click', async () => {
+      console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+      if (slides.length == 0) {
+        slides.length = 0;
+        const queryString = window.location.search;
+        // Create a URLSearchParams object to work with the query string
+        const urlParams = new URLSearchParams(queryString);
+
+        // Access specific parameters by name
+        const name = await urlParams.get('slide');
+        localStorage.setItem(name, JSON.stringify(slides));
+      }
+      else if (slides.length > 0) {
+        const queryString = window.location.search;
+        // Create a URLSearchParams object to work with the query string
+        const urlParams = new URLSearchParams(queryString);
+
+        // Access specific parameters by name
+        const name = await urlParams.get('slide');
+        await slides.splice(currentSlideIndex, 1); // Remove the current slide
+        localStorage.setItem(name, JSON.stringify(slides)); // Update local storage
+        // Display the next slide or previous slide if at the end
+        if (currentSlideIndex >= slides.length) {
+          currentSlideIndex = slides.length - 1;
+        }
+        displaySlide(currentSlideIndex);
+      }
+    });
+
+    document.getElementById('summary-btn').addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      function cleanText(text) {
+        // Remove HTML tags using a regular expression
+        let cleanedText = text.replace(/<[^>]*>/g, '');
+
+        // Remove non-alphanumeric characters (except spaces and periods)
+        cleanedText = cleanedText.replace(/[^\w\s.]/g, '');
+
+        // Remove extra whitespace
+        cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
+
+        return cleanedText;
+      }
+
+      // Get the current slide text
+      let text = "Generate summary of 4-5 Lines  ->>>    ";
+      for (let i = 0; i <= currentSlideIndex; i++) {
+        if (text.length > 1000) break;
+
+        let temp = await cleanText(slides[i].data);
+
+        text += "  " + temp + " **** ";
+        console.log(temp)
+      }
+
+      // text = await cleanText(text);
+
+      // Example usage:
+      // const dirtyText = `SQL or Structured Query Language is the standard language used for interacting with relational databases. <div>⭐In a relational database data is organized into tables, where each table consists of rows and columns.</div>`;
+      // console.log(cleanText(dirtyText));
+
+
+      // console.log("Slide Text: ", text);
+
+      try {
+        // Make the POST request to get the summary
+        const response = await fetch('/get-summary', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text }), // Send the text to the backend
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        // Check for an error in the response
+        if (data.error) {
+          alert('Error: ' + data.error);
+          return;
+        }
+
+        // console.log("Generated Summary: ", data.content);
+
+        // function generateSlideWithFormatting(content) {
+        // Replace all occurrences of triple stars with <br> for line breaks
+        let formattedContent = data.content.replace(/\*\*\*/g, '<br>');
+
+        // Replace all occurrences of text between ** with <b> to bold the text
+        formattedContent = formattedContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        // formattedContent = formattedContent.replace(/\*/g, '');
+
+        // Generate the slide structure with the formatted and bolded text
+
+        const summaryText = formattedContent;
+        console.log(data.content, '\n\n\n', summaryText);
+
+        // Add the new summary slide only if the content is valid
+        if (summaryText && summaryText.trim() !== '') {
+          slides.splice(currentSlideIndex + 1, 0, { title: "Summary", data: summaryText });
+          localStorage.setItem(name, JSON.stringify(slides)); // Update local storage
+          currentSlideIndex++; // Move to the new summary slide
+          displaySlide(currentSlideIndex); // Display the newly added slide
+        } else {
+          alert('The response is empty, cannot create a slide.');
+        }
+
+        // Remove empty slides (slides with both empty title and data)
+        slides = slides.filter(slide => !(slide.title.trim() === '' && slide.data.trim() === ''));
+
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    });
+
+
+
+    document.getElementById('promt-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Get the title input from the form
+      const title = document.getElementById('promt-input').value;
+      // Get the current slide's text data
+      const text = slides[currentSlideIndex];
+
+      try {
+        // Send the POST request to the /get-data endpoint
+        const response = await fetch('/get-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, text }), // Send both title and text
+        });
+
+        // Check for a valid response
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        // Check if there's an error in the response
+        if (data.error) {
+          alert('Error: ' + data.error);
+          return; // Exit if there's an error
+        }
+
+        console.log("Generated Content: ", data.content);
+
+        const newTitle = title || "New Slide"; // Fallback to a default title if needed
+        const newContent = data.content; // The content received from the API
+
+        // Add a new slide only if newContent is valid
+        if (newContent && newContent.trim() !== '') {
+          slides.splice(currentSlideIndex + 1, 0, { title: newTitle, data: newContent });
+          localStorage.setItem(name, JSON.stringify(slides)); // Update local storage
+          currentSlideIndex++; // Move to the new slide
+          displaySlide(currentSlideIndex); // Display the newly added slide
+        } else {
+          alert('The response is empty, cannot create a slide.');
+        }
+
+        // Remove any empty slides (with both empty title and data)
+        slides = slides.filter(slide => !(slide.title.trim() === '' && slide.data.trim() === ''));
+
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    });
+  </script>
+</body>
+
+</html>

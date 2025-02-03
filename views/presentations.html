@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Session</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Styling for the presentation boxes */
+        .presentation-box {
+            position: relative;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .presentation-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .presentation-title {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body style="background: linear-gradient(to bottom, #175d69 23%, #330c43 95%)">
+    <div id="loading" class="text-center text-gray-600 text-xl py-10 min-h-screen">Loading...</div>
+    <div id="result" class="hidden flex min-h-screen" style="background: linear-gradient(to bottom, #175d69 23%, #330c43 95%)">
+        <nav class="flex h-14 px-10">
+            <div class="flex items-center gap-1 w-[75%] text-white font-bold">
+                <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap text-white">Flowbite</span>
+                </a>
+            </div>
+            <div id="navbar" class="w-[20%] flex justify-between items-center px-10 text-white">
+                <div><a href="/" class="hover:text-gray-300">Home</a></div>
+                <!-- <div id="presentButton" class="cursor-pointer hover:text-gray-300">Present</div Present Button -->
+                <!-- <div id="createButton" class="cursor-pointer hover:text-gray-300">Create</div> Create Button -->
+                <div id="templates" class="cursor-pointer hover:text-gray-300"><a href="/template-page">Templates</a></div>
+                <!-- Slides link will be added here dynamically -->
+            </div>
+        </nav>
+
+        <div class="container mx-auto p-6">
+            <h1 class="text-3xl font-bold mb-6 text-center text-white">PRESENTATIONS</h1>
+            <div id="presentations-container" class="grid mt-20">
+                <!-- Presentations will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userEmail = ""; // To store user email
+
+        // Function to get slides data from local storage
+        function getSlidesData(email) {
+            const presentations = {}; // Object to store presentations data
+
+            // Traverse local storage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+
+                // Check if key starts with "slides" + email
+                if (key.startsWith("slides" + email)) {
+                    // Extract the identifier for the presentation
+                    const identifier = key.replace("slides" + email, "").replace("image", "").trim();
+
+                    // Determine title based on whether the key ends with "image"
+                    if (key.endsWith("image")) {
+                        const title = identifier;
+
+                        let data = JSON.parse(value);
+                        if (data.title && data.title.length) {
+                            // Initialize presentation if it doesn't exist
+                            if (!presentations[identifier]) {
+                                presentations[identifier] = '';
+                            }
+
+                            presentations[identifier] = data.title;
+                        }
+                    }
+                }
+            }
+            return presentations; // Return the presentations object
+        }
+
+        async function checkSession() {
+            try {
+                const response = await fetch('/check-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (!data.loggedIn) {
+                    window.location.href = '/login-page';
+                } else {
+                    userEmail = data.email; // Store user email
+                    const presentations = getSlidesData(userEmail);
+                    displayPresentations(presentations);
+
+                    // Add "Slides" link to navbar
+                    const slidesLink = document.createElement('div');
+                    slidesLink.innerHTML = `<a href="/slides-page" class="text-white hover:text-gray-300">Slides</a>`;
+                    navbar.appendChild(slidesLink);
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+                document.getElementById('result').innerText = "Error occurred while checking session.";
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+            }
+        }
+
+        // Function to display presentations on the screen
+        function displayPresentations(presentations) {
+            const container = document.getElementById('presentations-container');
+
+            for (const identifier in presentations) {
+                const presentation = presentations[identifier];
+
+                // Create a presentation box
+                const box = document.createElement('div');
+                box.classList.add('presentation-box', 'bg-gray-200', 'w-fit', 'h-fit', 'p-4', 'mt-10', 'shadow-lg', 'relative');
+
+                // Create a clickable title
+                const link = document.createElement('a');
+                link.href = `/present?slide=${presentation}`; // Routing to /present/src with identifier
+                link.classList.add('presentation-title', 'bg-white', 'text-slate-600', 'text-lg', 'font-bold');
+                link.innerText = presentation;
+
+                box.appendChild(link);
+                container.appendChild(box);
+            }
+        }
+
+        // Call the function on page load
+        window.onload = function () {
+            document.getElementById('result').style.display = 'none';
+            checkSession();
+        };
+    </script>
+</body>
+
+</html>

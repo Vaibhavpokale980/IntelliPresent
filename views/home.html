@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style for hidden forms */
+        #templateForm,
+        #presentForm {
+            display: none;
+        }
+
+        /* Flexbox to center content */
+        .centered-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            /* Full height of the viewport */
+        }
+    </style>
+</head>
+
+<body class="relative">
+    <nav class="bg-slate-9 flex h-14 px-10 ">
+        <div class="flex items-center gap-1 w-[70%] text-white font-bold">
+            <a href="/" class="flex items-center space-x-3 ml-24 rtl:space-x-reverse">
+                <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
+                <span class="self-center text-2xl font-semibold whitespace-nowrap text-white">Flowbite</span>
+            </a>
+        </div>
+        <div id="navbar" class="w-[50%] flex justify-between items-center px-10 text-white ">
+            <div><a href="/" class="hover:text-gray-300">Home</a></div>
+            <div id="presentButton" class="cursor-pointer hover:text-gray-300">Present</div> <!-- Present Button -->
+            <div id="createButton" class="cursor-pointer hover:text-gray-300">Create</div> <!-- Create Button -->
+            <div id="templates" class="cursor-pointer hover:text-gray-300"><a href="/template-page">Templates</a></div>
+        </div>
+    </nav>
+
+    <div id="hero-section" class="w-full min-h-screen bg--700">
+        <section class="hero-section">
+            <div class="hero">
+                <h2>Turn Your Presentations into Experiences</h2>
+                <p>
+                    Welcome to Inteli-Present, an all-in-one platform for creating and delivering dynamic presentations.
+                    Design slides with ease, navigate seamlessly through your presentation, and present with
+                    voice-activated text highlighting. Get AI-powered summaries and commands for an enhanced experience.
+                    Elevate your presentations effortlessly!
+                </p>
+                <div class="buttons">
+                    <a href="/template-page" class="join">Go now</a>
+                    <a href="#" class="learn">Learn More</a>
+                </div>
+            </div>
+            <div class="img">
+                <img class="rounded-xl " src="https://www.mybusinessvisual.com/img/blog/5%20Corporate%20Presentation%20design%20Mistakes%20to%20Avoid.jpg" alt="hero image" />
+            </div>
+        </section>
+    </div>
+
+    <!-- Hidden Form to Create Template -->
+    <div id="templateForm" class="centered-form absolute top-0 ml-[38%]">
+        <form id="createForm" class="bg-gray-200 p-5 rounded-lg shadow-lg w-[400px]">
+            <div class="w-full flex justify-center">
+                <div class=" w-[95%] h-[230px]">
+                    <img class="object-cover rounded-xl"
+                        src="https://cdn.prod.website-files.com/6410ebf8e483b5bb2c86eb27/64e998f044382712867dd4aa_ABM%20college%20presentation%20main.jpg"
+                        alt="img">
+                </div>
+            </div>
+
+            <div class="flex flex-col w-full justify-center mt-4">
+                <div class="w-full flex  flex justify-center">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-500">Create Presentaion</h2>
+                </div>
+                <input type="text" id="templateLink"  name="templateLink"
+                    class="w-full p-2 pl-4 mb-4 border border-gray-300 rounded bg-gray-200" placeholder="Template link" required>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create</button>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- Hidden Form for Present -->
+    <div id="presentForm" class="centered-form absolute top-0 ml-[38%]">
+
+        <form id="presentSlideForm" class="bg-gray-200 p-5 rounded-lg shadow-lg w-[400px]">
+            <div class="w-full flex justify-center">
+                <div class=" w-[95%] h-[230px]">
+                    <img class="object-cover rounded-xl"
+                        src="https://adccacademy.com/assets/images/services/Presentation-Skills2.jpg" alt="img">
+                </div>
+            </div>
+
+            <div class="flex flex-col w-full justify-center mt-4">
+                <div class="w-full flex  flex justify-center">
+                    <h2 class="text-2xl font-bold text-gray-500 mb-4">Start Present</h2>
+                </div>
+                <input type="text" id="slideId" name="slideId"
+                    class="w-full p-2 pl-4 mb-4 border border-gray-300 rounded bg-gray-200" placeholder="Slide ID" required>
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Present</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // function hideDiv(event) {
+        //     console.log('kjdsnbhjbgabgabhg,ajbgh,abgf')
+        //     const templateForm = document.getElementById('templateForm');
+        //     const presentForm = document.getElementById('presentForm');
+
+        //     if (!templateForm.classList.contains("hidden")) {
+        //         // Check if the click is outside the div
+        //         if (!templateForm.contains(event.target)) {
+        //             templateForm.classList.add("hidden"); // Hide the div if clicking outside
+        //         }
+        //     }
+
+        //     if (!presentForm.classList.contains("hidden")) {
+        //         // Check if the click is outside the div
+        //         if (!presentForm.contains(event.target)) {
+        //             console.log('1245678909127')
+        //             presentForm.classList.add("hidden"); // Hide the div if clicking outside
+        //         }
+        //     }
+        // }
+
+        async function checkSession() {
+            try {
+                const response = await fetch('/check-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                return data.loggedIn ? data.email : null;
+            } catch (error) {
+                console.error('Error checking session:', error);
+                return null;
+            }
+        }
+
+        function updateNavbar(sessionEmail) {
+            const navbar = document.getElementById('navbar');
+
+            if (sessionEmail) {
+                // Append 'Slides' link when the session exists
+                const slidesLink = document.createElement('div');
+                slidesLink.innerHTML = '<a href="/slides-page" class="hover:text-gray-300">Slides</a>';
+                navbar.appendChild(slidesLink);
+            } else {
+                // Add Login and Register links if no session
+                const registerLink = document.createElement('div');
+                registerLink.innerHTML = '<a href="/register-page" class="hover:text-gray-300">Register</a>';
+                const loginLink = document.createElement('div');
+                loginLink.innerHTML = '<a href="/login-page" class="hover:text-gray-300">Login</a>';
+                navbar.appendChild(registerLink);
+                navbar.appendChild(loginLink);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const sessionEmail = await checkSession();
+            updateNavbar(sessionEmail);
+        });
+
+        // Show and hide forms for creating and presenting slides
+        const createButton = document.getElementById('createButton');
+        const templateForm = document.getElementById('templateForm');
+        const presentForm = document.getElementById('presentForm');
+        const presentButton = document.getElementById('presentButton');
+        let hero = document.getElementById('hero-section');
+
+        createButton.addEventListener('click', function () {
+            templateForm.style.display = templateForm.style.display === 'none' || templateForm.style.display === '' ? 'flex' : 'none';
+            presentForm.style.display = 'none'; // Hide present form
+            if (templateForm.style.display == 'flex') hero.classList.add('opacity-20');
+            else hero.classList.remove('opacity-20');
+        });
+
+        presentButton.addEventListener('click', function () {
+            presentForm.style.display = presentForm.style.display === 'none' || presentForm.style.display === '' ? 'flex' : 'none';
+            templateForm.style.display = 'none'; // Hide create form
+            if (presentForm.style.display == 'flex') hero.classList.add('opacity-20');
+            else hero.classList.remove('opacity-20');
+        });
+
+        // Handle 'Create' form submission
+        const createForm = document.getElementById('createForm');
+        createForm.addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent page reload
+            const email = await checkSession();
+
+            if (email) {
+                const templateLink = document.getElementById('templateLink').value.trim();
+                const timestamp = Date.now();
+                const uniqueKey = `slides${email}${timestamp}`;
+                const newKey = `${uniqueKey}image`;
+
+                const dataToStore = {
+                    link: templateLink,
+                    title: uniqueKey,
+                    createdAt: new Date().toISOString(),
+                };
+
+                localStorage.setItem(newKey, JSON.stringify(dataToStore));
+                localStorage.setItem(uniqueKey, JSON.stringify([{ title: 'Title here (WELCOME 🙏)', data: 'Content here', image: 'https://example.com/image.jpg', link: 'no' }]));
+
+                window.location.href = `create-present?slide=${uniqueKey}`;
+            } else {
+                console.error('No session found');
+            }
+        });
+
+        // Handle 'Present' form submission
+        const presentSlideForm = document.getElementById('presentSlideForm');
+        presentSlideForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const slideId = document.getElementById('slideId').value;
+            const slideData = localStorage.getItem(slideId);
+
+            if (slideData) {
+                window.location.href = `present?slide=${slideId}`;
+            } else {
+                alert('Slide not found');
+            }
+        });
+    </script>
+</body>
+
+</html>
